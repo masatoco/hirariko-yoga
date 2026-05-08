@@ -1,679 +1,160 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ヨガ数秘学自動計算診断ツール ひらりこ</title>
-  <style>
-    :root {
-      --gold: #d4af37;
-      --brown: #8b4513;
-      --bg: #fdfaf5;
-      --ink: #333;
-      --muted: #777;
-      --card: #fff;
-      --accent: #fff9e6;
-      --line: #eee;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヨガ数秘学自動計算診断ツール ひらりこ</title>
+    <style>
+        :root { --gold: #d4af37; --brown: #8b4513; --bg: #fdfaf5; }
+        body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif; background-color: var(--bg); color: #333; margin: 0; padding: 15px; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--gold); }
+        h1 { text-align: center; color: var(--brown); margin-bottom: 25px; font-size: 1.5em; }
+        .input-area { text-align: center; margin-bottom: 30px; padding: 20px; background: #f9f6f0; border-radius: 10px; }
+        input[type="date"] { padding: 12px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 5px; width: 90%; max-width: 300px; margin-bottom: 10px; }
+        button { background: var(--brown); color: #fff; border: none; padding: 12px 30px; font-size: 1.1em; border-radius: 5px; cursor: pointer; width: 100%; max-width: 250px; }
+        
+        /* チャートグリッド：スマホでも3列を死守 */
+        .chart-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 550px; margin: 0 auto 40px; text-align: center; }
+        .node { border: 1px solid var(--gold); border-radius: 8px; padding: 8px 4px; background: #fff; display: flex; flex-direction: column; justify-content: center; min-height: 100px; }
+        .node span { display: block; font-size: 0.75em; color: #888; font-weight: bold; }
+        .node small { display: block; font-size: 0.65em; color: #aaa; margin-top: 2px; line-height: 1.2; }
+        .node strong { font-size: 1.5em; color: var(--brown); }
+        .highlight { background: #fff9e6; border: 2px solid var(--brown); }
 
-    * { box-sizing: border-box; }
+        .result-section { display: none; border-top: 2px solid var(--gold); padding-top: 30px; }
+        .reading-group { margin-bottom: 40px; }
+        .reading-group h2 { font-size: 1.2em; color: var(--brown); border-bottom: 1px solid var(--gold); padding-bottom: 5px; margin-bottom: 10px; }
+        
+        details { margin-bottom: 15px; border: 1px solid #eee; border-radius: 5px; background: #fafafa; }
+        summary { padding: 10px 15px; cursor: pointer; font-size: 0.85em; font-weight: bold; color: #666; outline: none; }
+        .description-content { padding: 15px; font-size: 0.85em; line-height: 1.6; background: #fff; color: #555; border-top: 1px solid #eee; }
+        .advice-box { padding: 20px; background: #fff; border-left: 5px solid var(--brown); font-size: 1em; line-height: 1.7; color: #333; white-space: pre-wrap; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-    body {
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
-      background: linear-gradient(180deg, #fdfaf5 0%, #f7f0e7 100%);
-      color: var(--ink);
-      margin: 0;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 980px;
-      margin: 0 auto;
-      background: var(--card);
-      padding: 28px;
-      border-radius: 24px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(212, 175, 55, 0.55);
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--brown);
-      margin: 0 0 10px;
-      font-size: clamp(1.5rem, 2.2vw, 2rem);
-      letter-spacing: 0.02em;
-    }
-
-    .lead {
-      text-align: center;
-      color: #6c5846;
-      line-height: 1.8;
-      margin: 0 auto 24px;
-      max-width: 760px;
-      font-size: 0.96rem;
-    }
-
-    .input-area {
-      margin-bottom: 30px;
-      padding: 20px;
-      background: #f9f6f0;
-      border-radius: 16px;
-      border: 1px solid rgba(212, 175, 55, 0.25);
-    }
-
-    .input-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    label {
-      font-size: 0.92rem;
-      color: #6d5b4f;
-      font-weight: 700;
-    }
-
-    input[type="date"] {
-      padding: 12px 14px;
-      font-size: 1rem;
-      border: 1px solid #cfc6b6;
-      border-radius: 10px;
-      min-width: 260px;
-      background: #fff;
-    }
-
-    button {
-      background: var(--brown);
-      color: #fff;
-      border: none;
-      padding: 12px 22px;
-      font-size: 1rem;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: .25s ease;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-    }
-
-    button:hover { background: #a0522d; transform: translateY(-1px); }
-
-    .helper {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.84rem;
-      line-height: 1.7;
-      margin: 0;
-    }
-
-    .chart-wrap {
-      background: linear-gradient(180deg, #fff 0%, #fffaf0 100%);
-      border: 1px solid rgba(212, 175, 55, 0.25);
-      border-radius: 18px;
-      padding: 18px;
-      margin-bottom: 26px;
-    }
-
-    .chart-title {
-      text-align: center;
-      color: var(--brown);
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin: 0 0 14px;
-    }
-
-    .chart-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      max-width: 640px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .node {
-      border: 1px solid rgba(212, 175, 55, 0.7);
-      border-radius: 12px;
-      padding: 12px 8px;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 110px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-    }
-
-    .node .jp {
-      display: block;
-      font-size: 0.8rem;
-      color: #7c6a58;
-      font-weight: 700;
-      margin-bottom: 2px;
-    }
-
-    .node .en {
-      display: block;
-      font-size: 0.66rem;
-      color: #9b8f84;
-      line-height: 1.2;
-      min-height: 1.6em;
-      margin-bottom: 6px;
-    }
-
-    .node strong {
-      font-size: 1.7rem;
-      color: var(--brown);
-      line-height: 1.2;
-    }
-
-    .node small {
-      display: block;
-      font-size: 0.68rem;
-      color: #9e958a;
-      margin-top: 6px;
-      line-height: 1.3;
-    }
-
-    .highlight {
-      background: var(--accent);
-      border: 2px solid var(--brown);
-    }
-
-    .result-section {
-      display: none;
-      border-top: 2px solid rgba(212, 175, 55, 0.55);
-      padding-top: 26px;
-    }
-
-    .summary-card {
-      background: linear-gradient(180deg, #fffaf0 0%, #fff 100%);
-      border: 1px solid rgba(212, 175, 55, 0.45);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 24px;
-    }
-
-    .summary-card h2,
-    .reading-group h2,
-    .other-numbers-box h3,
-    .source-box h3 {
-      color: var(--brown);
-      margin-top: 0;
-    }
-
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .pill {
-      background: #fff;
-      border: 1px solid rgba(212, 175, 55, 0.55);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 0.88rem;
-      color: #5c4c40;
-    }
-
-    .reading-group { margin-bottom: 28px; }
-
-    details {
-      margin-bottom: 12px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fafafa;
-      overflow: hidden;
-    }
-
-    summary {
-      padding: 14px 16px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #5d4e41;
-      list-style: none;
-    }
-
-    summary::-webkit-details-marker { display: none; }
-
-    .description-content {
-      padding: 0 16px 16px;
-      font-size: 0.92rem;
-      line-height: 1.8;
-      background: #fff;
-      color: #555;
-      border-top: 1px solid #eee;
-      white-space: pre-wrap;
-    }
-
-    .advice-box {
-      padding: 18px;
-      background: #fff;
-      border-left: 5px solid var(--brown);
-      font-size: 1rem;
-      line-height: 1.9;
-      color: #333;
-      white-space: pre-wrap;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border-radius: 10px;
-    }
-
-    .other-numbers-box,
-    .source-box {
-      background: #fdfaf5;
-      border: 1px dashed rgba(212, 175, 55, 0.8);
-      border-radius: 14px;
-      padding: 18px;
-      margin-top: 20px;
-    }
-
-    .basic-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .basic-item {
-      font-size: 0.9rem;
-      color: #444;
-      background: #fff;
-      padding: 12px;
-      border-radius: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid #f1ece3;
-    }
-
-    .basic-item strong {
-      color: var(--brown);
-      font-size: 1.1rem;
-      display: inline-block;
-      width: 28px;
-    }
-
-    .basic-item span {
-      display: block;
-      font-size: 0.8rem;
-      color: #8a7e72;
-      margin-bottom: 5px;
-      font-weight: 700;
-    }
-
-    a { color: #8b4513; }
-
-    .footer {
-      text-align: center;
-      margin-top: 28px;
-      font-size: 0.8rem;
-      color: #777;
-      border-top: 1px solid #eee;
-      padding-top: 18px;
-      line-height: 1.8;
-    }
-
-    @media (max-width: 720px) {
-      body { padding: 12px; }
-      .container { padding: 18px; border-radius: 18px; }
-      .chart-grid, .basic-list { grid-template-columns: 1fr; }
-      .node { min-height: 96px; }
-      input[type="date"] { width: 100%; min-width: 0; }
-      button { width: 100%; }
-    }
-  </style>
+        .other-numbers-box { background: #fdfaf5; border: 1px dashed var(--gold); border-radius: 10px; padding: 20px; margin-top: 20px; }
+        .other-numbers-box h3 { font-size: 1.1em; color: var(--brown); text-align: center; margin-bottom: 15px; }
+        .basic-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media(min-width: 480px) { .basic-list { grid-template-columns: 1fr 1fr; } }
+        .basic-item { font-size: 0.85em; background: #fff; padding: 10px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .basic-item strong { color: var(--brown); font-size: 1.1em; }
+        .basic-item span { display: block; font-size: 0.75em; color: #888; margin-bottom: 2px; }
+        .footer { text-align: center; margin-top: 40px; font-size: 0.75em; color: #777; border-top: 1px solid #eee; padding-top: 20px; }
+    </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <h1>ヨガ数秘学自動計算診断ツール ひらりこ</h1>
-    <p class="lead">
-      お誕生日を入れると、ヨガ数秘学の9つのポジションを自動計算します。<br>
-      本質・課題・支え・強み・第一印象・核・人生の目的まで、ひと目で確認できるシンプルな診断ツールです。
-    </p>
+    <div class="input-area"><p>生年月日を入力してください</p><input type="date" id="birthDate"><button onclick="diagnose()">診断する</button></div>
 
-    <section class="input-area">
-      <div class="input-row">
-        <label for="birthdate">生年月日</label>
-        <input type="date" id="birthdate" />
-        <button id="calcBtn">診断する</button>
-      </div>
-      <p class="helper">
-        数字は1〜11を基本に使用し、11を超える場合は桁を足して11以下に還元します。<br>
-        ただし、ギフトナンバーのみ公開解説にならい0が出る場合があります。
-      </p>
-    </section>
+    <div id="resultArea" class="result-section">
+        <div class="chart-grid">
+            <div class="node"><span>Intention</span><strong><span id="pos1"></span></strong><small>(素の自分)</small></div>
+            <div class="node"><span>Projection</span><strong><span id="pos2"></span></strong><small>(人から見られる自分)</small></div>
+            <div class="node"><span>Gift</span><strong><span id="pos3"></span></strong><small>(強み・才能)</small></div>
+            <div class="node"><span>Past</span><strong><span id="pos4"></span></strong><small>(過去からの智慧)</small></div>
+            <div class="node"><span>Asset</span><strong><span id="pos5"></span></strong><small>(あなたの資産)</small></div>
+            <div class="node highlight"><span>Identity</span><strong><span id="pos6"></span></strong><small>(思考の癖・在り方)</small></div>
+            <div class="node highlight"><span>Foundation</span><strong><span id="pos7"></span></strong><small>(困った時の土台)</small></div>
+            <div class="node highlight"><span>Lesson</span><strong><span id="pos8"></span></strong><small>(人生の課題・学び)</small></div>
+            <div class="node" style="grid-column: span 3;"><span>Purpose</span><strong><span id="pos9"></span></strong><small>(目指す目的地)</small></div>
+        </div>
 
-    <section class="chart-wrap">
-      <p class="chart-title">9ポジション・チャート</p>
-      <div class="chart-grid" id="chartGrid">
-        <div class="node" id="lessonNode"><span class="jp">レッスン</span><span class="en">Lesson</span><strong>—</strong><small>人生の課題</small></div>
-        <div class="node highlight" id="soulNode"><span class="jp">ソウル</span><span class="en">Soul</span><strong>—</strong><small>自分の本質</small></div>
-        <div class="node" id="giftNode"><span class="jp">ギフト</span><span class="en">Gift</span><strong>—</strong><small>生まれ持った強み</small></div>
+        <div class="reading-group">
+            <h2>Identity（思考の癖・在り方）</h2>
+            <details><summary>アイデンティティとは？</summary><div class="description-content">あなたの「思考の癖」や「自分自身の在り方」を表す数字です。自分をどう見せているか、どうありたいかという内面的な指針となります。</div></details>
+            <div id="textIdentity" class="advice-box"></div>
+        </div>
 
-        <div class="node" id="foundationNode"><span class="jp">ファンデーション</span><span class="en">Foundation</span><strong>—</strong><small>支えとなる数字</small></div>
-        <div class="node highlight" id="coreNode"><span class="jp">コア</span><span class="en">Core</span><strong>—</strong><small>あなたの核</small></div>
-        <div class="node" id="pastNode"><span class="jp">パスト</span><span class="en">Past</span><strong>—</strong><small>受け継いだ強み</small></div>
+        <div class="reading-group">
+            <h2>Lesson（人生の課題・学び）</h2>
+            <details><summary>レッスンとは？</summary><div class="description-content">この人生で向き合うべき「課題」を表す数字です。何度も繰り返してしまう悩みのパターンや、そこから学ぶべき智慧を示しています。</div></details>
+            <div id="textLesson" class="advice-box"></div>
+        </div>
 
-        <div class="node" id="projectionNode"><span class="jp">プロジェクション</span><span class="en">Projection</span><strong>—</strong><small>第一印象</small></div>
-        <div class="node highlight" id="purposeNode"><span class="jp">パーパス</span><span class="en">Purpose</span><strong>—</strong><small>人生の目的</small></div>
-        <div class="node" id="assetNode"><span class="jp">アセット</span><span class="en">Asset</span><strong>—</strong><small>第三の強み</small></div>
-      </div>
-    </section>
+        <div class="reading-group">
+            <h2>Foundation（困った時の土台）</h2>
+            <details><summary>ファンデーションとは？</summary><div class="description-content">人生の「土台」となる数字です。行き詰まった時や困った時に立ち戻るべき場所、あなたを支える揺るぎない足場を表します。</div></details>
+            <div id="textFoundation" class="advice-box"></div>
+        </div>
 
-    <section class="result-section" id="resultSection">
-      <div class="summary-card">
-        <h2>診断サマリー</h2>
-        <div id="summaryText"></div>
-        <div class="pill-row" id="pillRow"></div>
-      </div>
-
-      <div class="reading-group">
-        <h2>ポジション別の読み解き</h2>
-        <div id="readingContainer"></div>
-      </div>
-
-      <div class="reading-group">
-        <h2>ひらりこ流・今日からの活かし方</h2>
-        <div class="advice-box" id="adviceBox"></div>
-      </div>
-
-      <div class="other-numbers-box">
-        <h3>数字の基本キーワード</h3>
-        <div class="basic-list" id="basicList"></div>
-      </div>
-
-      <div class="source-box">
-        <h3>計算ロジックの参考</h3>
-        <p>
-          公開されているヨガ数秘学の解説をもとに、ブラウザ上で動く自動計算ツールとして整理しています。<br>
-          ・9ポジションと各役割：
-          <a href="https://www.indigo-yoga.jp/yoga-numerology/" target="_blank" rel="noopener noreferrer">Indigo Yoga</a><br>
-          ・1〜11の数字キーワード：
-          <a href="https://www.everythingcounts.tokyo/services-3" target="_blank" rel="noopener noreferrer">Everything Counts</a><br>
-          ・チャート計算の公開説明：
-          <a href="https://yogajournal.jp/7868/2" target="_blank" rel="noopener noreferrer">Yoga Journal Japan</a>
-        </p>
-      </div>
-    </section>
-
-    <div class="footer">
-      © ひらりこ用カスタムHTMLツール<br>
-      このファイルはHTML単体で動作します。ブラウザでそのまま開いて使えます。
+        <div class="other-numbers-box">
+            <h3>その他のポジションの基本キーワード</h3>
+            <div id="basicList" class="basic-list"></div>
+        </div>
     </div>
-  </div>
+    <div class="footer">© ひらりこ - Yoga Numerology Specialist</div>
+</div>
 
-  <script>
-    const positionMeta = {
-      lesson: { label: 'レッスンナンバー', short: 'レッスン', english: 'Lesson', role: '人生の課題と学び', age: '0〜18歳ごろ', calc: '誕生月を11以下に還元', id: 'lessonNode' },
-      soul: { label: 'ソウルナンバー', short: 'ソウル', english: 'Soul', role: '自分の本質・ありのままの姿', age: '0〜18歳ごろ', calc: '生まれた日を11以下に還元', id: 'soulNode' },
-      foundation: { label: 'ファンデーションナンバー', short: 'ファンデーション', english: 'Foundation', role: '支えとなる数字', age: '0〜18歳ごろ', calc: 'ソウル + レッスン', id: 'foundationNode' },
-      gift: { label: 'ギフトナンバー', short: 'ギフト', english: 'Gift', role: '生まれ持った強み', age: '36〜54歳ごろ', calc: '西暦下2桁の数字和', id: 'giftNode' },
-      past: { label: 'パストナンバー', short: 'パスト', english: 'Past', role: '過去から受け継いだ強み', age: '36〜54歳ごろ', calc: '西暦4桁の数字和', id: 'pastNode' },
-      asset: { label: 'アセットナンバー', short: 'アセット', english: 'Asset', role: 'ギフトとパストを経て発動する第三の強み', age: '成熟とともに活性化', calc: 'ギフト + パスト', id: 'assetNode' },
-      projection: { label: 'プロジェクションナンバー', short: 'プロジェクション', english: 'Projection', role: '第一印象・表層に見える印象', age: '18〜27歳ごろ', calc: 'ソウル + ギフト', id: 'projectionNode' },
-      core: { label: 'コアナンバー', short: 'コア', english: 'Core', role: 'あなたの核・本音の部分', age: '27〜36歳ごろ', calc: 'レッスン + パスト', id: 'coreNode' },
-      purpose: { label: 'パーパスナンバー', short: 'パーパス', english: 'Purpose', role: '人生の目的・果たすべき役割', age: '54歳以降', calc: '生年月日の全数字の和', id: 'purposeNode' }
-    };
+<script>
+function reduceNum(n) { while (n > 11) { n = Math.floor(n / 10) + (n % 10); } return n; }
 
-    const numberMeanings = {
-      0: {
-        title: '0 / Giftの特例',
-        keywords: '余白・可能性・未分化・これから形になる力',
-        light: 'まだ限定されていない可能性。状況に応じて多様な才能へ育つ余白があります。',
-        shadow: '方向性が定まりにくく、強みを自覚しにくいことがあります。',
-        action: '試して、比べて、しっくり来る分野を育てる。'
-      },
-      1: {
-        title: '1 / Soul body',
-        keywords: '魂・はじまり・自分・オリジナリティ',
-        light: '独自の世界観を持ち、ゼロから始める力があります。',
-        shadow: '頑固さや孤立感として出ることがあります。',
-        action: '自分らしさを恐れず、一歩目を踏み出す。'
-      },
-      2: {
-        title: '2 / Negative mind',
-        keywords: 'つながり・関係・気づかい・慎重さ',
-        light: '相手の気持ちに気づき、関係を育てる力があります。',
-        shadow: '相手優先になりすぎて自分を見失うことがあります。',
-        action: 'やさしさと同時に、自分の境界線も守る。'
-      },
-      3: {
-        title: '3 / Positive mind',
-        keywords: '前向き・自由・創造性・仲介',
-        light: '明るさと創造性で場を軽くし、人をつなげます。',
-        shadow: '気分に流され、散漫になりやすい面があります。',
-        action: '楽しさを力にしつつ、やることを絞る。'
-      },
-      4: {
-        title: '4 / Neutral mind',
-        keywords: '秩序・理論・安定・観察',
-        light: '冷静さ、論理性、安定感で土台を整えられます。',
-        shadow: '厳格さや硬さとして現れることがあります。',
-        action: '整える力を活かしつつ、柔軟さも残す。'
-      },
-      5: {
-        title: '5 / Physical body',
-        keywords: '行動・経験・自由・表現',
-        light: '体験しながら学び、動いて道を切り開く実践派です。',
-        shadow: '落ち着きのなさや衝動性に振れやすい面があります。',
-        action: 'まず動く。ただし、振り返り時間も作る。'
-      },
-      6: {
-        title: '6 / Heart body',
-        keywords: '心・愛・感情・癒し・美',
-        light: '愛情深く、心を込めて人や場を育てる力があります。',
-        shadow: '傷つきやすく、期待が重くなりやすいことがあります。',
-        action: '好きという気持ちを原動力にし、自分の心も守る。'
-      },
-      7: {
-        title: '7 / Auric body',
-        keywords: '言葉・対話・発信・内省・境界線',
-        light: '言葉や存在感でメッセージを届ける感受性があります。',
-        shadow: '神経過敏さや閉じこもりとして出ることがあります。',
-        action: 'ひとり時間で整え、必要な言葉だけを丁寧に発信する。'
-      },
-      8: {
-        title: '8 / Pranic body',
-        keywords: '生命力・パワー・ビジネス・推進力',
-        light: '強い推進力と実行力で現実を動かす力があります。',
-        shadow: '圧の強さや怒りとして表れやすいことがあります。',
-        action: '勢いを目的のために使い、周囲との呼吸も合わせる。'
-      },
-      9: {
-        title: '9 / Subtle body',
-        keywords: '完結・知識・探求・手放し',
-        light: '学びを深め、本質を見抜く探究者の資質があります。',
-        shadow: '考えすぎや執着の強さとして現れることがあります。',
-        action: '知恵を溜めるだけでなく、人に還元して循環させる。'
-      },
-      10: {
-        title: '10 / Radiant body',
-        keywords: '輝き・実現・自信・リーダーシップ',
-        light: 'ビジョンを掲げ、周囲を明るく導く華があります。',
-        shadow: '見栄や不安の裏返しで無理をしやすいことがあります。',
-        action: '自信を装うのではなく、志に立ち戻って進む。'
-      },
-      11: {
-        title: '11 / Spiritual',
-        keywords: '天とのつながり・流れ・宇宙・直感',
-        light: '大いなる流れを感じ取り、目に見えない価値を受け取る力があります。',
-        shadow: '現実感を失ったり、繊細さが揺らぎになりやすい面があります。',
-        action: '静かな時間を持ち、直感を現実の行動へ落とし込む。'
-      }
-    };
+const basicKeywords = { 
+    1: "自立・リーダーシップ", 2: "繋がりの渇望・慎重・Negative Mind", 3: "創造性・楽観的", 
+    4: "論理的・安定・規律", 5: "行動・自由・身体", 6: "感情・心・家族", 
+    7: "オーラ・声・コミュニケーション", 8: "パワー・情熱", 9: "完成・知識・手放す", 
+    10: "信念・圧倒的な存在感・All or Nothing", 11: "直感・大きな流れ" 
+};
 
-    const positionIntro = {
-      lesson: '人生で繰り返し向き合いやすいテーマ。うまくいかない時ほど、この数字の学びが浮かび上がります。',
-      soul: 'ありのままの自分。迷った時に帰る場所のような数字です。',
-      foundation: '落ち込んだ時、ぐらついた時に足元を支える数字です。',
-      gift: '生まれ持った長所や才能。自覚して育てるほど輝きます。',
-      past: '過去から受け継いだ資質。経験によって強みに変わります。',
-      asset: 'ギフトとパストを活かした先に育つ、もう一段深い強みです。',
-      projection: '初対面で相手に伝わりやすい印象。見え方の数字です。',
-      core: '建前より奥にある、本音と核の性質です。',
-      purpose: '人生を通して果たしていく使命や役割を示す数字です。'
-    };
+const identityTexts = {
+    1: "あなたは、何かを目指して一直線に進んでいきたい気持ちを、自分の中に強く持っている人ね。でも時々、その一歩を踏み出す勇気をためらって、引っ込み思案になってしまうこともあるんじゃない？でもね、あなたには何かを成し遂げられるだけの可能性が十分に備わっているの。頑固と言われることもあるかもだけど、それは自分の世界を守り、その殻を突き破って進むための「強い意志」がある証拠よ。自分を信じて、まっすぐ信じてね。",
+    2: "あなたは、相手の状況をよく察して、一歩先を読みながら慎重に動けるサポート上手な人ね。一対一の関係を築くのが得意で、人とのつながりをとても大切にするわ。でも、相手を優先しすぎるあまり、自分のことを後回しにしてしまうこともあるんじゃない？興味がなくなると急に無関心になってスルーしてしまう極端なところもあるけれど、すべての物事に真っ向から向き合うことを選んでいくと、あなたらしく、もっと楽に過ごせるようになるわよ。",
+    3: "あなたは、子供のような純粋な好奇心と、どんな状況でもプラスの面を見つけ出せる人。自由な発想で新しいものを生み出すクリエイティブな才能があって、あなたの周りには自然と笑顔が集まってくるのでは。ただ、根っこにあるのは「気楽でいたい」というピュアな想い。強い責任感を背負わされたり、ルールに縛られたりするのは、ちょっと苦手じゃない？飽きっぽさが出てしまうこともあるけれど、自分の「楽しい！」という直感を信じて動くことで、あなた本来の輝きが周囲にも広がっていくわよ。",
+    4: "あなたは、物事をフラットに捉えて冷静に分析できる、とても安定感のある人ね。着実に物事を進めていけるので周囲からの信頼も厚いはず。計画を立てたり、論理的な仕組みを作ったりするのが得意で、とても几帳面なところがあるんじゃない？ただ、真面目すぎて「正しい・正しくない」という枠組みばかりで物事を考えすぎるあまり時にはぐるぐる思考になりがち。まずは頭の中を空にして自分を見失わないようにしましょう。",
+    5: "あなたは、考えるよりもまず身体を動かし、自らの体験を通して物事を学んでいくタイプの人。変化を恐れず、どんな環境にもスッと馴染める臨機応変さと、良くも悪くも目立つ存在ね。自由を愛し、人脈を広げたり物事を鮮やかにアレンジしたりする才能にも溢れているわ。いろんな人と出会い、多くの物事を吸収して、自分の体験を人に伝えていく「先生」のような役割も持っているのよ。ただ、自由を求めるあまり、やりたいことがあちこちに散らばって、つい動きすぎてしまう面があるから気をつけて。自分の身体をしっかり労わる時間を大切に。それが、あなたの持ち味を一番長く活かすコツよ。",
+    6: "あなたは、心を大切にする人。どんな正論を振りかざされても、そこに心（愛）がないと納得できない性質の持ち主ね。周りの何気ない一言にも反応してしまいがちだけど、ひとたび決心すると、誰にも真似できないほどのパワーを発揮するわ。常に周りを気にしてしまうけれど、誰かの機嫌を伺う前に、自分の心にだけは嘘をつかないという覚悟を持ってね。その決心が、あなたの心地良い領域になるから。",
+    7: "あなたは、相手との距離を保ちながらコミュニケーションをとるのが大切な人。クールで全く話さない、おしゃべり過ぎてしまう、どちらか極端になる人がいます。伝えたいことを自分の中で整理していくと、あなたのコミュニケーション力は人を引き上げていく、とても強い影響力を持ちます。また、オーラが広いため、エンパス状態にならぬよう常に自分の内側を観察（内省）しておきましょう。自分をクリアにし、相手との距離の取り方を考えることが大切よ。",
+    8: "あなたは、一度掲げた目標に必ずたどり着くまで、持っている力のすべてを注ぎ込んでやり遂げるパワフルな人。責任感が強く、途中で投げ出すことはありません。負けず嫌いで競争心もあることから、その情熱を循環させながら成功へと繋げていける強さを持っています。ただ、突き進む時こそ意識的に呼吸を整えることを忘れないで。それがあなたの力を最大限に活かすための大切なポイントよ。",
+    9: "あなたは、知的好奇心が強く、あらゆる知識を全て知りたいと願う人。スマホでリサーチを始めると止まらなくなるような、学びに対する並外れた集中力があるのではないでしょうか。学んだことを整理して説明したり、人を説得したりするのも非常に上手です。多くのことを器用に吸収できますが、その中でもあなたが「これ！」と決めた一つのことに絞り、専門家やマスターを目指すことを意識してみて。一つのことを最後までやり遂げて完成させる姿勢が、あなたの力を最大限に引き出すポイントよ。",
+    10: "あなたは、揺るぎない「信念（Conviction）」を持ち、圧倒的な存在感で周囲をリードしていく人。その場の気分や気まぐれで動くことはなく、一度これと決めた道を迷わず突き進む強さを持っています。自分の意志を周囲や社会全体へと広げ、大きな影響を及ぼしていく力があるわ。ただ、自分の正義を貫くあまり、周りを置き去りにして独善的になっていないか注意が必要。自らの信念を周囲の信頼へと繋げていくことを意識してみて。自分を信じ抜く姿勢を持ち続けることが、あなたのリーダーシップをより確かなものにする鍵よ。",
+    11: "あなたは、理屈じゃないところで何かを察知したり、物事のつながりを感じ取ったりするのが得意な人。ふとした瞬間のひらめきや、何気なく発する言葉には、周りの空気を変えてしまうような独特の力があるわ。ただ、その感覚が鋭い分、あれこれ考えすぎて現実から浮いてしまうこともあるんじゃないかしら。自分の中に降りてきた感覚を、そのままにせず、誰にでも伝わる具体的な言葉や行動に変えていくことを意識してみて。「なんとなく」を「見える形」にすること。それが、あなたの持ち味を一番現実的に活かすためのコツよ。"
+};
 
-    function sumDigits(value) {
-      return String(Math.abs(value)).split('').reduce((sum, n) => sum + Number(n), 0);
-    }
+const lessonTexts = {
+    1: "あなたは自分だけの世界を持っていて、本来は自立心が強い人。 人生では「自分一人で決断しなきゃいけない場面」が何度も繰り返しやってくるけれど、そのたびに、ためらって自分の殻に閉じこもってしまいがちなのよね。そこで逃げずに、勇気を持って「自分の一歩」を踏み出せるかどうかが、あなたに与えられた最大の学びよ。 誰かに委ねるんじゃなく、自分の足でしっかりと立つ「自立」ができれば、もっと自分らしく、楽に生きていけるようになるわよ。",
+    2: "あなたは本来、相手の足りないところにすぐ気づくサポート上手な人。いつも誰かと二人でいるのがしっくりくるけれど、人生では相手に合わせすぎて自分をすり減らしたり、相手が離れると「見捨てられた」と絶望したりする場面が何度もやってくるはずよ。「自分には何かが足りない」と欠乏感に振り回されるのが、あなたの繰り返す悩みのパターン。 でもね、あなたに足りないものなんて何一つないのよ。誰かと二人でいなくても、あなたは一人で完璧に存在している。その事実に気づき、一人で立つ強さを学ぶことが、あなたの人生を自由にする最大の鍵よ。",
+    3: "あなたは本来、人を笑わせたり楽しませたりするのが大好きな人。 でもね、人に喜んでもらおうとするあまり、何でも「イエス」って引き受けて、自分のキャパを超えてパンクしてしまうのがあなたの繰り返す悩みのパターン。自分を置き去りにせず嫌なことは「ノー」とはっきり言う練習をすることがあなたの本当の意味で人生を楽しむための大きな学びよ。",
+    4: "あなたは本来、相手の意見を良し悪しで判断せず客観的に考えることができる人。 枠組みばかりで物事を考えすぎるあまり時にはぐるぐる思考になりがち。ここでの学びは、完璧な正解を求めず相手の意見を俯瞰して受け入れることがあなたの冷静さ安定を手にするための大切な学び。",
+    5: "あなたは本来、健康で活発に、自由に動き回ることが何よりも心地良い人。変化を恐れず、どんな環境にもスッと馴染める臨機応変さと、良くも悪くも目立つ存在ね。ただ、自由を求めるあまり規律を失い、自らの環境もコントロールが難しくなりがちに。ここでの学びは、何事においても少しずつ自分のリズムを作ること。 自分を律する強さを持つことが、一生自由に動き続けるための大切な学びよ。",
+    6: "あなたは本来、感情豊かで自分の心に従っていける人。 感情の波に振り回されて苦しんだり、家族や身近な人のことばかりを心配して自分を追い込んだりする場面が何度もやってきます。ここでの学びは、自分の心を「がんじがらめ」にせず、自由に解き放ってあげること。 あなた自身の心の声に正直に従うことを学ぶのが、人生をより豊かに、楽に生きていくための大切な学びよ。",
+    7: "あなたは本来、自分の心の声を明確に伝えていける人。 伝えたいことが言えない、あるいは真意が伝わりにくいと感じて悩むのが、あなたの繰り返すパターンのようね。ここでの学びは、常に自分の「内側」を観る習慣を持つこと。自分の本音を丁寧に観察できるようになれば、コミュニケーションは驚くほど円滑になります。心をクリアに保つことが大切な学びよ。",
+    8: "本来のあなたは、強い生命力とエネルギーに溢れ、物事を大きく動かしていくパワーを持った人。 何でも一人で背負い込みすぎて、重圧で身動きが取れなくなることが起こりやすいの。ここでの学びは、エネルギーを自分一人で止めずに、周囲と循環させること。 適度に肩の力を抜き、呼吸を整えて、豊かさを受け入れる余裕を持つことが、人生をより力強く回していくための大切な学びよ。",
+    9: "本来のあなたは、潔く不要なもの手放していける人。別れる、離れるといった場面が繰り返し起こり、それをいつまでも引きずって悩んだりすることが出てきます。ここでの学びは、執着せず次への準備として一旦完了させておくこと。手放すことよ。",
+    10: "本来のあなたは、どんな事にも屈せず自分の決めことを100%全力投球できるリーダーシップとれる人。けれど人生において、リーダーとしての役割を与えられても自分はそんな存在じゃないと悩むパターンに。ここでの学びは、自分に埋もれてる勇気や強い意志に気づき、自信をもって進んでいくこと。それがあなたが真のリーダーとして輝き続けるための鍵よ。",
+    11: "本来のあなたは、何が起きてもジタバタせず、その出来事の意味を丸ごと受け入れていける人。 目に見える不都合な現実に振り回されて、心が折れそうになってはいない？ここでの学びは、目に見える現象だけに心を縛られず、大きな流れに導かれていることを信頼すること。 受け入れた時、その不運に見えた出来事は、あなたを最高の幸運へと導くはず。"
+};
 
-    function reduceTo11(value) {
-      let n = Math.abs(Number(value));
-      while (n > 11) n = sumDigits(n);
-      return n;
-    }
+const foundationTexts = {
+    2: "あなたは、ご縁や繋がりという土台の上に立っている人。行き詰まった時は最も信頼できる人に一対一でアドバイスをもらうこと。マンツーマンで向き合える場所での相談こそが、あなたを支える最強の盾になるはず。日頃から「信頼できる人」との関係を良好にしておくことがあなたを守る鍵になるわよ。",
+    3: "あなたは、「楽しさ」や「自由で気軽」という土台の上に立っている人。行き詰まった時は、一旦すべての責任感をストップさせなさい。自分が心から笑えて、ただ楽しいと思えることに没頭すること。それが、停滞した状況を打破する一番の近道になるはず。",
+    4: "あなたは「安定感」や「規律」という土台の上に立っている人。行き詰まった時は、まず淡々と「今できること」を書いて整理し、自分なりのルールを再構築すること。日頃から冷静さを保つ為の瞑想や、自分のルーティンを整えておくことがあなたを支える鍵になるわよ。",
+    5: "あなたは「身体」「行動」という土台の上に立っている人。行き詰まって不自由さを感じた時は、徐々に身体を動かすこと。場所を変え、環境を変え、五感に刺激を与えることが突破口になるわ。自分を律する強さを持つことが、あなたを身軽に動かすエンジンになるわよ。",
+    6: "あなたは「心」や「感情」がベースになっている人。感情の波に飲み込まれて動けなくなった時は、安心できる場所があなたの支え。日頃からお家を心地良いものに整えておくこと。自分の感情を確認する習慣を持つことで、心が傷つかずに済むための強さになっていくはずよ。",
+    7: "あなたは「コミュニケーション」「声」という土台の上に立っている人。行き詰まった時ほど閉じこもってしまいがちだけど、今の自分の状況を、適切に外へ「アナウンス」すること。それが突破口になるはず。自分の思いを言葉にして言えるように練習しておくことが、あなたを救う足場になるわ。",
+    8: "あなたは「エネルギー」「パワー」という土台の上に立っている人. 行き詰まった時こそ、縮こまらずに自分の強さを思い出しなさい。その「攻めの姿勢」こそが、あなたを支える一番の柱になるはず。深呼吸の習慣をつけ、自分のエネルギーを常に循環させておくことが大切よ。",
+    9: "あなたは「知識」「完成」という土台の上に立っている人。行き詰まって八方塞がりになった時は、余計なものを手放して、ひとつの事をマスターすること。手放す練習をしておくことが、いざという時にあなたを支える揺るぎない足場になるわよ。",
+    10: "あなたは「リーダーシップ」「圧倒的な存在感」という土台の上に立っている人。自分を小さく見積もらず、一切の妥協をやめること。あなたが本来持っている「光」を放つことが、今の状況を突破する最大の支えになるはず。自分が先頭に立てば、道は必ず開けるという自信を持ちなさい。",
+    11: "あなたは「直感」「大きな流れ」という土台の上に立っている人。行き詰まった時こそ、無理に自力で解決しようとせず、一度すべてを「大きな流れ」に委ねること。ふと感じた直感や、目に見えない存在との繋がりを信じることが、あなたを救う一番の解決策になるはずよ。"
+};
 
-    function calcGift(year) {
-      const lastTwo = String(year).slice(-2);
-      const digitSum = lastTwo.split('').reduce((sum, n) => sum + Number(n), 0);
-      return digitSum === 0 ? 0 : reduceTo11(digitSum);
-    }
-
-    function calcPast(year) {
-      const total = String(year).split('').reduce((sum, n) => sum + Number(n), 0);
-      return reduceTo11(total);
-    }
-
-    function calcPurpose(year, month, day) {
-      const allDigits = `${year}${month}${day}`.split('').reduce((sum, n) => sum + Number(n), 0);
-      return reduceTo11(allDigits);
-    }
-
-    function formatMeaning(num) {
-      const item = numberMeanings[num];
-      return `${item.title}\nキーワード：${item.keywords}\n\n光の側面：${item.light}\n影の側面：${item.shadow}\n活かし方：${item.action}`;
-    }
-
-    function createReadingItem(meta, num) {
-      const details = document.createElement('details');
-      const summary = document.createElement('summary');
-      summary.textContent = `${meta.label}：${num}`;
-      const content = document.createElement('div');
-      content.className = 'description-content';
-      content.textContent = `${positionIntro[Object.keys(positionMeta).find(key => positionMeta[key] === meta)]}\n\n役割：${meta.role}\n強く出やすい時期：${meta.age}\n計算：${meta.calc}\n\n${formatMeaning(num)}`;
-      details.appendChild(summary);
-      details.appendChild(content);
-      return details;
-    }
-
-    function createBasicCard(num) {
-      const item = numberMeanings[num];
-      const div = document.createElement('div');
-      div.className = 'basic-item';
-      div.innerHTML = `<span>${item.title}</span><strong>${num}</strong>${item.keywords}`;
-      return div;
-    }
-
-    function updateNode(meta, value) {
-      const node = document.getElementById(meta.id);
-      node.querySelector('strong').textContent = value;
-    }
-
-    function generateAdvice(values) {
-      const soul = numberMeanings[values.soul];
-      const core = numberMeanings[values.core];
-      const purpose = numberMeanings[values.purpose];
-      const lesson = numberMeanings[values.lesson];
-      const gift = numberMeanings[values.gift];
-
-      return [
-        `あなたの軸は「${values.soul}」の${soul.keywords}にあり、内側では「${values.core}」の${core.keywords}が核として働いています。`,
-        `人生の学びは「${values.lesson}」の${lesson.keywords}。避けるより、丁寧に育てるほど運の流れが整いやすくなります。`,
-        `強みとしては「${values.gift}」の${gift.keywords}が光ります。もともと備わっている資質なので、遠慮せず使って大丈夫です。`,
-        `そして人生全体の目的は「${values.purpose}」の${purpose.keywords}。目先の損得よりも、長い流れで見た時に意味のある選択をすると、数字が応えてくれます。`,
-        `今日の一歩としては、${soul.action} これを現実の行動に変えることが、あなたの数字を味方にする最短ルートです。`
-      ].join('\n\n');
-    }
-
-    function render(values, birthdateText) {
-      Object.entries(positionMeta).forEach(([key, meta]) => updateNode(meta, values[key]));
-
-      const summaryText = document.getElementById('summaryText');
-      summaryText.innerHTML = `
-        <p><strong>${birthdateText}</strong> のチャートが完成しました。</p>
-        <p>
-          本質は <strong>${values.soul}</strong>、核は <strong>${values.core}</strong>、人生の目的は <strong>${values.purpose}</strong> です。<br>
-          表向きの印象は <strong>${values.projection}</strong>、生まれ持った強みは <strong>${values.gift}</strong> に出ています。
-        </p>
-      `;
-
-      const pillRow = document.getElementById('pillRow');
-      pillRow.innerHTML = '';
-      [
-        `本質 ${values.soul}`,
-        `核 ${values.core}`,
-        `目的 ${values.purpose}`,
-        `課題 ${values.lesson}`,
-        `第一印象 ${values.projection}`,
-        `強み ${values.gift}`
-      ].forEach(text => {
-        const pill = document.createElement('span');
-        pill.className = 'pill';
-        pill.textContent = text;
-        pillRow.appendChild(pill);
-      });
-
-      const readingContainer = document.getElementById('readingContainer');
-      readingContainer.innerHTML = '';
-      Object.entries(positionMeta).forEach(([key, meta]) => {
-        readingContainer.appendChild(createReadingItem(meta, values[key]));
-      });
-
-      const uniqueNums = [...new Set(Object.values(values))].sort((a, b) => a - b);
-      const basicList = document.getElementById('basicList');
-      basicList.innerHTML = '';
-      uniqueNums.forEach(num => basicList.appendChild(createBasicCard(num)));
-
-      document.getElementById('adviceBox').textContent = generateAdvice(values);
-      document.getElementById('resultSection').style.display = 'block';
-    }
-
-    function calculate() {
-      const input = document.getElementById('birthdate').value;
-      if (!input) {
-        alert('生年月日を入力してください。');
-        return;
-      }
-
-      const date = new Date(input + 'T00:00:00');
-      if (Number.isNaN(date.getTime())) {
-        alert('正しい日付を入力してください。');
-        return;
-      }
-
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-
-      const lesson = reduceTo11(month);
-      const soul = reduceTo11(day);
-      const foundation = reduceTo11(soul + lesson);
-      const gift = calcGift(year);
-      const past = calcPast(year);
-      const asset = reduceTo11(gift + past);
-      const projection = reduceTo11(soul + gift);
-      const core = reduceTo11(lesson + past);
-      const purpose = calcPurpose(year, month, day);
-
-      const values = { lesson, soul, foundation, gift, past, asset, projection, core, purpose };
-      const birthdateText = `${year}年${month}月${day}日`;
-      localStorage.setItem('hirariko_birthdate', input);
-      render(values, birthdateText);
-    }
-
-    document.getElementById('calcBtn').addEventListener('click', calculate);
-    document.getElementById('birthdate').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') calculate();
-    });
-
-    const saved = localStorage.getItem('hirariko_birthdate');
-    if (saved) {
-      document.getElementById('birthdate').value = saved;
-      calculate();
-    }
-  </script>
+function diagnose() {
+    const input = document.getElementById('birthDate').value;
+    if (!input) return alert("生年月日を入れてちょうだい！");
+    const date = new Date(input);
+    const y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate();
+    const p1 = reduceNum(d), p2 = reduceNum(m), p3 = reduceNum(parseInt(y.toString().slice(-2))), p4 = reduceNum(y.toString().split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
+    const p5 = reduceNum(p1 + p4), p6 = reduceNum(p1 + p2), p7 = reduceNum(p2 + p3), p8 = reduceNum(p3 + p4), p9 = reduceNum(p1 + p2 + p3 + p4);
+    const ids = ['pos1','pos2','pos3','pos4','pos5','pos6','pos7','pos8','pos9'];
+    const vals = [p1, p2, p3, p4, p5, p6, p7, p8, p9];
+    vals.forEach((v, i) => { document.getElementById(ids[i]).innerText = v; });
+    document.getElementById('textIdentity').innerText = identityTexts[p6] || "解説準備中";
+    document.getElementById('textLesson').innerText = lessonTexts[p8] || "解説準備中";
+    document.getElementById('textFoundation').innerText = foundationTexts[p7] || "解説準備中";
+    const otherNames = {1:"Intention", 2:"Projection", 3:"Gift", 4:"Past", 5:"Asset", 9:"Purpose"};
+    const subMeans = {1:"(素の自分)", 2:"(人から見られる自分)", 3:"(強み・才能)", 4:"(過去からの智慧)", 5:"(あなたの資産)", 9:"(目指す目的地)"};
+    let html = "";
+    Object.keys(otherNames).forEach(k => { const v = vals[k-1]; html += `<div class="basic-item"><span>${otherNames[k]} ${subMeans[k]}</span><strong>${v}</strong>: ${basicKeywords[v]}</div>`; });
+    document.getElementById('basicList').innerHTML = html;
+    document.getElementById('resultArea').style.display = 'block';
+}
+</script>
 </body>
 </html>
