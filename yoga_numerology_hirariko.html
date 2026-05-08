@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ヨガ数秘学自動計算診断ツール ひらりこ</title>
+  <style>
+    :root {
+      --gold: #d4af37;
+      --brown: #8b4513;
+      --bg: #fdfaf5;
+      --ink: #333;
+      --muted: #777;
+      --card: #fff;
+      --accent: #fff9e6;
+      --line: #eee;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+      background: linear-gradient(180deg, #fdfaf5 0%, #f7f0e7 100%);
+      color: var(--ink);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 28px;
+      border-radius: 24px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.55);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--brown);
+      margin: 0 0 10px;
+      font-size: clamp(1.5rem, 2.2vw, 2rem);
+      letter-spacing: 0.02em;
+    }
+
+    .lead {
+      text-align: center;
+      color: #6c5846;
+      line-height: 1.8;
+      margin: 0 auto 24px;
+      max-width: 760px;
+      font-size: 0.96rem;
+    }
+
+    .input-area {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f9f6f0;
+      border-radius: 16px;
+      border: 1px solid rgba(212, 175, 55, 0.25);
+    }
+
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 0.92rem;
+      color: #6d5b4f;
+      font-weight: 700;
+    }
+
+    input[type="date"] {
+      padding: 12px 14px;
+      font-size: 1rem;
+      border: 1px solid #cfc6b6;
+      border-radius: 10px;
+      min-width: 260px;
+      background: #fff;
+    }
+
+    button {
+      background: var(--brown);
+      color: #fff;
+      border: none;
+      padding: 12px 22px;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: .25s ease;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    button:hover { background: #a0522d; transform: translateY(-1px); }
+
+    .helper {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .chart-wrap {
+      background: linear-gradient(180deg, #fff 0%, #fffaf0 100%);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 26px;
+    }
+
+    .chart-title {
+      text-align: center;
+      color: var(--brown);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0 0 14px;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .node {
+      border: 1px solid rgba(212, 175, 55, 0.7);
+      border-radius: 12px;
+      padding: 12px 8px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 110px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    .node .jp {
+      display: block;
+      font-size: 0.8rem;
+      color: #7c6a58;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .node .en {
+      display: block;
+      font-size: 0.66rem;
+      color: #9b8f84;
+      line-height: 1.2;
+      min-height: 1.6em;
+      margin-bottom: 6px;
+    }
+
+    .node strong {
+      font-size: 1.7rem;
+      color: var(--brown);
+      line-height: 1.2;
+    }
+
+    .node small {
+      display: block;
+      font-size: 0.68rem;
+      color: #9e958a;
+      margin-top: 6px;
+      line-height: 1.3;
+    }
+
+    .highlight {
+      background: var(--accent);
+      border: 2px solid var(--brown);
+    }
+
+    .result-section {
+      display: none;
+      border-top: 2px solid rgba(212, 175, 55, 0.55);
+      padding-top: 26px;
+    }
+
+    .summary-card {
+      background: linear-gradient(180deg, #fffaf0 0%, #fff 100%);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card h2,
+    .reading-group h2,
+    .other-numbers-box h3,
+    .source-box h3 {
+      color: var(--brown);
+      margin-top: 0;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .pill {
+      background: #fff;
+      border: 1px solid rgba(212, 175, 55, 0.55);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      color: #5c4c40;
+    }
+
+    .reading-group { margin-bottom: 28px; }
+
+    details {
+      margin-bottom: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fafafa;
+      overflow: hidden;
+    }
+
+    summary {
+      padding: 14px 16px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #5d4e41;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .description-content {
+      padding: 0 16px 16px;
+      font-size: 0.92rem;
+      line-height: 1.8;
+      background: #fff;
+      color: #555;
+      border-top: 1px solid #eee;
+      white-space: pre-wrap;
+    }
+
+    .advice-box {
+      padding: 18px;
+      background: #fff;
+      border-left: 5px solid var(--brown);
+      font-size: 1rem;
+      line-height: 1.9;
+      color: #333;
+      white-space: pre-wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border-radius: 10px;
+    }
+
+    .other-numbers-box,
+    .source-box {
+      background: #fdfaf5;
+      border: 1px dashed rgba(212, 175, 55, 0.8);
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 20px;
+    }
+
+    .basic-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .basic-item {
+      font-size: 0.9rem;
+      color: #444;
+      background: #fff;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #f1ece3;
+    }
+
+    .basic-item strong {
+      color: var(--brown);
+      font-size: 1.1rem;
+      display: inline-block;
+      width: 28px;
+    }
+
+    .basic-item span {
+      display: block;
+      font-size: 0.8rem;
+      color: #8a7e72;
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+
+    a { color: #8b4513; }
+
+    .footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.8rem;
+      color: #777;
+      border-top: 1px solid #eee;
+      padding-top: 18px;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 12px; }
+      .container { padding: 18px; border-radius: 18px; }
+      .chart-grid, .basic-list { grid-template-columns: 1fr; }
+      .node { min-height: 96px; }
+      input[type="date"] { width: 100%; min-width: 0; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ヨガ数秘学自動計算診断ツール ひらりこ</h1>
+    <p class="lead">
+      お誕生日を入れると、ヨガ数秘学の9つのポジションを自動計算します。<br>
+      本質・課題・支え・強み・第一印象・核・人生の目的まで、ひと目で確認できるシンプルな診断ツールです。
+    </p>
+
+    <section class="input-area">
+      <div class="input-row">
+        <label for="birthdate">生年月日</label>
+        <input type="date" id="birthdate" />
+        <button id="calcBtn">診断する</button>
+      </div>
+      <p class="helper">
+        数字は1〜11を基本に使用し、11を超える場合は桁を足して11以下に還元します。<br>
+        ただし、ギフトナンバーのみ公開解説にならい0が出る場合があります。
+      </p>
+    </section>
+
+    <section class="chart-wrap">
+      <p class="chart-title">9ポジション・チャート</p>
+      <div class="chart-grid" id="chartGrid">
+        <div class="node" id="lessonNode"><span class="jp">レッスン</span><span class="en">Lesson</span><strong>—</strong><small>人生の課題</small></div>
+        <div class="node highlight" id="soulNode"><span class="jp">ソウル</span><span class="en">Soul</span><strong>—</strong><small>自分の本質</small></div>
+        <div class="node" id="giftNode"><span class="jp">ギフト</span><span class="en">Gift</span><strong>—</strong><small>生まれ持った強み</small></div>
+
+        <div class="node" id="foundationNode"><span class="jp">ファンデーション</span><span class="en">Foundation</span><strong>—</strong><small>支えとなる数字</small></div>
+        <div class="node highlight" id="coreNode"><span class="jp">コア</span><span class="en">Core</span><strong>—</strong><small>あなたの核</small></div>
+        <div class="node" id="pastNode"><span class="jp">パスト</span><span class="en">Past</span><strong>—</strong><small>受け継いだ強み</small></div>
+
+        <div class="node" id="projectionNode"><span class="jp">プロジェクション</span><span class="en">Projection</span><strong>—</strong><small>第一印象</small></div>
+        <div class="node highlight" id="purposeNode"><span class="jp">パーパス</span><span class="en">Purpose</span><strong>—</strong><small>人生の目的</small></div>
+        <div class="node" id="assetNode"><span class="jp">アセット</span><span class="en">Asset</span><strong>—</strong><small>第三の強み</small></div>
+      </div>
+    </section>
+
+    <section class="result-section" id="resultSection">
+      <div class="summary-card">
+        <h2>診断サマリー</h2>
+        <div id="summaryText"></div>
+        <div class="pill-row" id="pillRow"></div>
+      </div>
+
+      <div class="reading-group">
+        <h2>ポジション別の読み解き</h2>
+        <div id="readingContainer"></div>
+      </div>
+
+      <div class="reading-group">
+        <h2>ひらりこ流・今日からの活かし方</h2>
+        <div class="advice-box" id="adviceBox"></div>
+      </div>
+
+      <div class="other-numbers-box">
+        <h3>数字の基本キーワード</h3>
+        <div class="basic-list" id="basicList"></div>
+      </div>
+
+      <div class="source-box">
+        <h3>計算ロジックの参考</h3>
+        <p>
+          公開されているヨガ数秘学の解説をもとに、ブラウザ上で動く自動計算ツールとして整理しています。<br>
+          ・9ポジションと各役割：
+          <a href="https://www.indigo-yoga.jp/yoga-numerology/" target="_blank" rel="noopener noreferrer">Indigo Yoga</a><br>
+          ・1〜11の数字キーワード：
+          <a href="https://www.everythingcounts.tokyo/services-3" target="_blank" rel="noopener noreferrer">Everything Counts</a><br>
+          ・チャート計算の公開説明：
+          <a href="https://yogajournal.jp/7868/2" target="_blank" rel="noopener noreferrer">Yoga Journal Japan</a>
+        </p>
+      </div>
+    </section>
+
+    <div class="footer">
+      © ひらりこ用カスタムHTMLツール<br>
+      このファイルはHTML単体で動作します。ブラウザでそのまま開いて使えます。
+    </div>
+  </div>
+
+  <script>
+    const positionMeta = {
+      lesson: { label: 'レッスンナンバー', short: 'レッスン', english: 'Lesson', role: '人生の課題と学び', age: '0〜18歳ごろ', calc: '誕生月を11以下に還元', id: 'lessonNode' },
+      soul: { label: 'ソウルナンバー', short: 'ソウル', english: 'Soul', role: '自分の本質・ありのままの姿', age: '0〜18歳ごろ', calc: '生まれた日を11以下に還元', id: 'soulNode' },
+      foundation: { label: 'ファンデーションナンバー', short: 'ファンデーション', english: 'Foundation', role: '支えとなる数字', age: '0〜18歳ごろ', calc: 'ソウル + レッスン', id: 'foundationNode' },
+      gift: { label: 'ギフトナンバー', short: 'ギフト', english: 'Gift', role: '生まれ持った強み', age: '36〜54歳ごろ', calc: '西暦下2桁の数字和', id: 'giftNode' },
+      past: { label: 'パストナンバー', short: 'パスト', english: 'Past', role: '過去から受け継いだ強み', age: '36〜54歳ごろ', calc: '西暦4桁の数字和', id: 'pastNode' },
+      asset: { label: 'アセットナンバー', short: 'アセット', english: 'Asset', role: 'ギフトとパストを経て発動する第三の強み', age: '成熟とともに活性化', calc: 'ギフト + パスト', id: 'assetNode' },
+      projection: { label: 'プロジェクションナンバー', short: 'プロジェクション', english: 'Projection', role: '第一印象・表層に見える印象', age: '18〜27歳ごろ', calc: 'ソウル + ギフト', id: 'projectionNode' },
+      core: { label: 'コアナンバー', short: 'コア', english: 'Core', role: 'あなたの核・本音の部分', age: '27〜36歳ごろ', calc: 'レッスン + パスト', id: 'coreNode' },
+      purpose: { label: 'パーパスナンバー', short: 'パーパス', english: 'Purpose', role: '人生の目的・果たすべき役割', age: '54歳以降', calc: '生年月日の全数字の和', id: 'purposeNode' }
+    };
+
+    const numberMeanings = {
+      0: {
+        title: '0 / Giftの特例',
+        keywords: '余白・可能性・未分化・これから形になる力',
+        light: 'まだ限定されていない可能性。状況に応じて多様な才能へ育つ余白があります。',
+        shadow: '方向性が定まりにくく、強みを自覚しにくいことがあります。',
+        action: '試して、比べて、しっくり来る分野を育てる。'
+      },
+      1: {
+        title: '1 / Soul body',
+        keywords: '魂・はじまり・自分・オリジナリティ',
+        light: '独自の世界観を持ち、ゼロから始める力があります。',
+        shadow: '頑固さや孤立感として出ることがあります。',
+        action: '自分らしさを恐れず、一歩目を踏み出す。'
+      },
+      2: {
+        title: '2 / Negative mind',
+        keywords: 'つながり・関係・気づかい・慎重さ',
+        light: '相手の気持ちに気づき、関係を育てる力があります。',
+        shadow: '相手優先になりすぎて自分を見失うことがあります。',
+        action: 'やさしさと同時に、自分の境界線も守る。'
+      },
+      3: {
+        title: '3 / Positive mind',
+        keywords: '前向き・自由・創造性・仲介',
+        light: '明るさと創造性で場を軽くし、人をつなげます。',
+        shadow: '気分に流され、散漫になりやすい面があります。',
+        action: '楽しさを力にしつつ、やることを絞る。'
+      },
+      4: {
+        title: '4 / Neutral mind',
+        keywords: '秩序・理論・安定・観察',
+        light: '冷静さ、論理性、安定感で土台を整えられます。',
+        shadow: '厳格さや硬さとして現れることがあります。',
+        action: '整える力を活かしつつ、柔軟さも残す。'
+      },
+      5: {
+        title: '5 / Physical body',
+        keywords: '行動・経験・自由・表現',
+        light: '体験しながら学び、動いて道を切り開く実践派です。',
+        shadow: '落ち着きのなさや衝動性に振れやすい面があります。',
+        action: 'まず動く。ただし、振り返り時間も作る。'
+      },
+      6: {
+        title: '6 / Heart body',
+        keywords: '心・愛・感情・癒し・美',
+        light: '愛情深く、心を込めて人や場を育てる力があります。',
+        shadow: '傷つきやすく、期待が重くなりやすいことがあります。',
+        action: '好きという気持ちを原動力にし、自分の心も守る。'
+      },
+      7: {
+        title: '7 / Auric body',
+        keywords: '言葉・対話・発信・内省・境界線',
+        light: '言葉や存在感でメッセージを届ける感受性があります。',
+        shadow: '神経過敏さや閉じこもりとして出ることがあります。',
+        action: 'ひとり時間で整え、必要な言葉だけを丁寧に発信する。'
+      },
+      8: {
+        title: '8 / Pranic body',
+        keywords: '生命力・パワー・ビジネス・推進力',
+        light: '強い推進力と実行力で現実を動かす力があります。',
+        shadow: '圧の強さや怒りとして表れやすいことがあります。',
+        action: '勢いを目的のために使い、周囲との呼吸も合わせる。'
+      },
+      9: {
+        title: '9 / Subtle body',
+        keywords: '完結・知識・探求・手放し',
+        light: '学びを深め、本質を見抜く探究者の資質があります。',
+        shadow: '考えすぎや執着の強さとして現れることがあります。',
+        action: '知恵を溜めるだけでなく、人に還元して循環させる。'
+      },
+      10: {
+        title: '10 / Radiant body',
+        keywords: '輝き・実現・自信・リーダーシップ',
+        light: 'ビジョンを掲げ、周囲を明るく導く華があります。',
+        shadow: '見栄や不安の裏返しで無理をしやすいことがあります。',
+        action: '自信を装うのではなく、志に立ち戻って進む。'
+      },
+      11: {
+        title: '11 / Spiritual',
+        keywords: '天とのつながり・流れ・宇宙・直感',
+        light: '大いなる流れを感じ取り、目に見えない価値を受け取る力があります。',
+        shadow: '現実感を失ったり、繊細さが揺らぎになりやすい面があります。',
+        action: '静かな時間を持ち、直感を現実の行動へ落とし込む。'
+      }
+    };
+
+    const positionIntro = {
+      lesson: '人生で繰り返し向き合いやすいテーマ。うまくいかない時ほど、この数字の学びが浮かび上がります。',
+      soul: 'ありのままの自分。迷った時に帰る場所のような数字です。',
+      foundation: '落ち込んだ時、ぐらついた時に足元を支える数字です。',
+      gift: '生まれ持った長所や才能。自覚して育てるほど輝きます。',
+      past: '過去から受け継いだ資質。経験によって強みに変わります。',
+      asset: 'ギフトとパストを活かした先に育つ、もう一段深い強みです。',
+      projection: '初対面で相手に伝わりやすい印象。見え方の数字です。',
+      core: '建前より奥にある、本音と核の性質です。',
+      purpose: '人生を通して果たしていく使命や役割を示す数字です。'
+    };
+
+    function sumDigits(value) {
+      return String(Math.abs(value)).split('').reduce((sum, n) => sum + Number(n), 0);
+    }
+
+    function reduceTo11(value) {
+      let n = Math.abs(Number(value));
+      while (n > 11) n = sumDigits(n);
+      return n;
+    }
+
+    function calcGift(year) {
+      const lastTwo = String(year).slice(-2);
+      const digitSum = lastTwo.split('').reduce((sum, n) => sum + Number(n), 0);
+      return digitSum === 0 ? 0 : reduceTo11(digitSum);
+    }
+
+    function calcPast(year) {
+      const total = String(year).split('').reduce((sum, n) => sum + Number(n), 0);
+      return reduceTo11(total);
+    }
+
+    function calcPurpose(year, month, day) {
+      const allDigits = `${year}${month}${day}`.split('').reduce((sum, n) => sum + Number(n), 0);
+      return reduceTo11(allDigits);
+    }
+
+    function formatMeaning(num) {
+      const item = numberMeanings[num];
+      return `${item.title}\nキーワード：${item.keywords}\n\n光の側面：${item.light}\n影の側面：${item.shadow}\n活かし方：${item.action}`;
+    }
+
+    function createReadingItem(meta, num) {
+      const details = document.createElement('details');
+      const summary = document.createElement('summary');
+      summary.textContent = `${meta.label}：${num}`;
+      const content = document.createElement('div');
+      content.className = 'description-content';
+      content.textContent = `${positionIntro[Object.keys(positionMeta).find(key => positionMeta[key] === meta)]}\n\n役割：${meta.role}\n強く出やすい時期：${meta.age}\n計算：${meta.calc}\n\n${formatMeaning(num)}`;
+      details.appendChild(summary);
+      details.appendChild(content);
+      return details;
+    }
+
+    function createBasicCard(num) {
+      const item = numberMeanings[num];
+      const div = document.createElement('div');
+      div.className = 'basic-item';
+      div.innerHTML = `<span>${item.title}</span><strong>${num}</strong>${item.keywords}`;
+      return div;
+    }
+
+    function updateNode(meta, value) {
+      const node = document.getElementById(meta.id);
+      node.querySelector('strong').textContent = value;
+    }
+
+    function generateAdvice(values) {
+      const soul = numberMeanings[values.soul];
+      const core = numberMeanings[values.core];
+      const purpose = numberMeanings[values.purpose];
+      const lesson = numberMeanings[values.lesson];
+      const gift = numberMeanings[values.gift];
+
+      return [
+        `あなたの軸は「${values.soul}」の${soul.keywords}にあり、内側では「${values.core}」の${core.keywords}が核として働いています。`,
+        `人生の学びは「${values.lesson}」の${lesson.keywords}。避けるより、丁寧に育てるほど運の流れが整いやすくなります。`,
+        `強みとしては「${values.gift}」の${gift.keywords}が光ります。もともと備わっている資質なので、遠慮せず使って大丈夫です。`,
+        `そして人生全体の目的は「${values.purpose}」の${purpose.keywords}。目先の損得よりも、長い流れで見た時に意味のある選択をすると、数字が応えてくれます。`,
+        `今日の一歩としては、${soul.action} これを現実の行動に変えることが、あなたの数字を味方にする最短ルートです。`
+      ].join('\n\n');
+    }
+
+    function render(values, birthdateText) {
+      Object.entries(positionMeta).forEach(([key, meta]) => updateNode(meta, values[key]));
+
+      const summaryText = document.getElementById('summaryText');
+      summaryText.innerHTML = `
+        <p><strong>${birthdateText}</strong> のチャートが完成しました。</p>
+        <p>
+          本質は <strong>${values.soul}</strong>、核は <strong>${values.core}</strong>、人生の目的は <strong>${values.purpose}</strong> です。<br>
+          表向きの印象は <strong>${values.projection}</strong>、生まれ持った強みは <strong>${values.gift}</strong> に出ています。
+        </p>
+      `;
+
+      const pillRow = document.getElementById('pillRow');
+      pillRow.innerHTML = '';
+      [
+        `本質 ${values.soul}`,
+        `核 ${values.core}`,
+        `目的 ${values.purpose}`,
+        `課題 ${values.lesson}`,
+        `第一印象 ${values.projection}`,
+        `強み ${values.gift}`
+      ].forEach(text => {
+        const pill = document.createElement('span');
+        pill.className = 'pill';
+        pill.textContent = text;
+        pillRow.appendChild(pill);
+      });
+
+      const readingContainer = document.getElementById('readingContainer');
+      readingContainer.innerHTML = '';
+      Object.entries(positionMeta).forEach(([key, meta]) => {
+        readingContainer.appendChild(createReadingItem(meta, values[key]));
+      });
+
+      const uniqueNums = [...new Set(Object.values(values))].sort((a, b) => a - b);
+      const basicList = document.getElementById('basicList');
+      basicList.innerHTML = '';
+      uniqueNums.forEach(num => basicList.appendChild(createBasicCard(num)));
+
+      document.getElementById('adviceBox').textContent = generateAdvice(values);
+      document.getElementById('resultSection').style.display = 'block';
+    }
+
+    function calculate() {
+      const input = document.getElementById('birthdate').value;
+      if (!input) {
+        alert('生年月日を入力してください。');
+        return;
+      }
+
+      const date = new Date(input + 'T00:00:00');
+      if (Number.isNaN(date.getTime())) {
+        alert('正しい日付を入力してください。');
+        return;
+      }
+
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+
+      const lesson = reduceTo11(month);
+      const soul = reduceTo11(day);
+      const foundation = reduceTo11(soul + lesson);
+      const gift = calcGift(year);
+      const past = calcPast(year);
+      const asset = reduceTo11(gift + past);
+      const projection = reduceTo11(soul + gift);
+      const core = reduceTo11(lesson + past);
+      const purpose = calcPurpose(year, month, day);
+
+      const values = { lesson, soul, foundation, gift, past, asset, projection, core, purpose };
+      const birthdateText = `${year}年${month}月${day}日`;
+      localStorage.setItem('hirariko_birthdate', input);
+      render(values, birthdateText);
+    }
+
+    document.getElementById('calcBtn').addEventListener('click', calculate);
+    document.getElementById('birthdate').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') calculate();
+    });
+
+    const saved = localStorage.getItem('hirariko_birthdate');
+    if (saved) {
+      document.getElementById('birthdate').value = saved;
+      calculate();
+    }
+  </script>
+</body>
+</html>
